@@ -30,7 +30,7 @@ if recv1[:3] != '250':
 
 # Send MAIL FROM command and print server response.
 # Fill in start
-avsender = "simenbkr"
+avsender = "avsender@domene.tld"
 clientSocket.send("MAIL FROM:"+avsender+"\r\n")
 msg = clientSocket.recv(4096)
 print str(msg)+"\n"
@@ -38,7 +38,7 @@ print str(msg)+"\n"
 
 # Send RCPT TO command and print server response.
 # Fill in start
-til = "simenbkr@stud.ntnu.no"
+til = "mottaker@domene.tld"
 clientSocket.send("RCPT TO:"+til+"\r\n")
 msg = clientSocket.recv(4096)
 print str(msg)+"\n"
@@ -54,7 +54,7 @@ print str(msg)+"\n"
 # Send message data.
 # Fill in start
 subject = "Test"
-melding = "Kanskje dette funker? Hadde vært litt kult."
+melding = "Kanskje dette funker? Hadde vÃ¦rt litt kult."
 clientSocket.send("Subject: "+subject+"\r\n\r\n"+melding+"\r\n.\r\n")
 msg = clientSocket.recv(4096)
 print str(msg)+"\n"
@@ -62,7 +62,7 @@ print str(msg)+"\n"
 
 # Message ends with a single period.
 # Fill in start
-# usikker på hva som menes med denne.
+# usikker pÃ¥ hva som menes med denne.
 # Fill in end
 
 # Send QUIT command and get server response.
