@@ -13,7 +13,7 @@ class ClientHandler(SocketServer.BaseRequestHandler):
     only connected clients, and not the server itself. If you want to write
     logic for the server, you must write it outside this class
     """
-
+    self.kommandoer = ['login','logout','msg','names','help']
     def handle(self):
         """
         This method handles the connection between a client and the server.
@@ -25,8 +25,28 @@ class ClientHandler(SocketServer.BaseRequestHandler):
         # Loop that listens for messages from the client
         while True:
             received_string = self.connection.recv(4096)
+
+            recv = json.loads(received_string)
+
+            request = recv['request']
+            content = recv['content']
             
+            if request not in self.kommandoer:
+                pass
+                #response = error
+            elif (request == "login" and content == ""):
+                pass
+                #response = error
+
+            
+
+
+
+
+
+
             # TODO: Add handling of received payload from client
+
 
 
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
@@ -46,7 +66,7 @@ if __name__ == "__main__":
     No alterations are necessary
     """
     HOST, PORT = 'localhost', 9998
-    print 'Server running...'
+    print '[*] Server running...'
 
     # Set up and initiate the TCP server
     server = ThreadedTCPServer((HOST, PORT), ClientHandler)
