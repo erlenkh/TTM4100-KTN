@@ -21,18 +21,18 @@ class MessageParser():
 
     def parse(self, payload):
         # decode the JSON object
-        payload = json.loads(payload)
-        print payload
-        print payload['response']
-        if payload['response'] in self.possible_responses:
-            return self.possible_responses[payload['response']](payload)
+        payload_dumped = json.loads(payload)
+        #print payload
+        #print payload['response']
+        if payload_dumped['response'] in self.possible_responses:
+            return self.possible_responses[payload_dumped['response']](payload_dumped)
         else:
-            print "[*] Error! Ugyldig repons!"
+            return "[*] Error! Ugyldig repons!"
             # Response not valid
 
     def parse_error(self, payload):
         return_string = ""
-        return_string += "Tid sendt: "+payload['timestamp']+"\n"
+        return_string += "Tid sendt: "+str(payload['timestamp'].split(" ")[1])+" "+str(payload['timestamp'].split(" ")[2])+" "+str(payload['timestamp'].split(" ")[3])+"\n"
         return_string += "Avsender: "+payload['sender']+"\n"
         return_string += "Respons: "+payload['response']+"\n"
         return_string += "Innhold: "+payload['content']
@@ -40,14 +40,14 @@ class MessageParser():
     
     def parse_info(self, payload):
         return_string = ""
-        return_string += "Tid sendt: "+payload['timestamp']+"\n"
+        return_string += "Tid sendt: "+str(payload['timestamp'].split(" ")[1])+" "+str(payload['timestamp'].split(" ")[2])+" "+str(payload['timestamp'].split(" ")[3])+"\n"
         return_string += "Avsender: "+payload['sender']+"\n"
         return_string += "Respons: "+payload['response']+"\n"
         return_string += "Innhold: "+payload['content']
         return return_string
     def parse_message(self,payload):
         return_string = ""
-        return_string += "Tid sendt: "+payload['timestamp']+"\n"
+        return_string += "Tid sendt: "+str(payload['timestamp'].split(" ")[1])+" "+str(payload['timestamp'].split(" ")[2])+" "+str(payload['timestamp'].split(" ")[3])+"\n"
         return_string += "Avsender: "+payload['sender']+"\n"
         return_string += "Respons: "+payload['response']+"\n"
         return_string += "Innhold: "+payload['content']
@@ -55,7 +55,7 @@ class MessageParser():
 
     def parse_history(self,payload):
         return_string = ""
-        return_string += "Tid sendt: "+payload['timestamp']+"\n"
+        return_string += "Tid sendt: "+str(payload['timestamp'].split(" ")[1])+" "+str(payload['timestamp'].split(" ")[2])+" "+str(payload['timestamp'].split(" ")[3])+"\n"
         return_string += "Avsender: "+payload['sender']+"\n"
         return_string += "Respons: "+payload['response']+"\n"
         return_string += "Innhold: "+payload['content']
