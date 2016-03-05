@@ -3,7 +3,10 @@ import socket, json, re, time
 from MessageReceiver import MessageReceiver
 from MessageParser import MessageParser
 
-regex = re.compile(r'(.*) ?(.*)',re.M | re.I)
+#regex = re.compile(r'(.*) ?(.*)',re.M | re.I)
+
+#best fucking regex ever shitnubs
+regex = re.compile(r'(\w+)?(\s)?(.*)')
 
 class Client:
     """
@@ -22,6 +25,7 @@ class Client:
         
         self.kommandoer = ['login','logout','msg','names','help']
 
+        #Hva gjorde dette igjen? Husker ikke hvorfor det er kommentert ut, men alt funker så... fuck it.
         #self.mottaker = MessageReceiver(self,self.connection)
 
         # TODO: Finish init process with necessary code
@@ -31,25 +35,32 @@ class Client:
         # Initiate the connection to the server
         self.connection.connect((self.host, self.server_port))
         print "[*] Kobling etablert"
-        lytter = MessageReciver(client,self.connection)
+        lytter = MessageReceiver(self,self.connection)
         lytter.daemon = True
         lytter.start()
         print "[*] Lytter startet."
         
     def disconnect(self):
         self.connection.close()
+
+        #This shit will only work with banning/kicking cause thats how I roll.
         # TODO: Handle disconnection
 
     def receive_message(self, message, connection):
         parser = MessageParser()
         print parser.parse(message)
 
-    def send_payload(self, kommandoen, melding):
+    def send_payload(self, inputen):
         # TODO: Handle sending of a payload
         payload = {}
-
-        payload['request'] = kommandoen
-        payload['content'] = melding
+        a = ""
+        #REGEX POWAH
+        if regex.search(inputen).group(3) == "": a = None
+        else: a = regex.search(inputen).group(3)
+        
+        #Do you have a moment to talk about our lord and savior, Regex?
+        payload['request'] = regex.search(inputen).group(1)
+        payload['content'] = a
         payload_json = json.dumps(payload)
 
         self.connection.send(payload_json)
@@ -58,18 +69,9 @@ class Client:
     def handle_input(self):
         a = True
         while a:
-            inn_tekst = str(input("> "))
-            kommando = regex.search(inn.tekst).group(1)
-            if len(regex.search(inn_tekst).group().split(" ")) != 1 or len(regex.search(inn_tekst).group().split(" ")) != 2:
-                print "[*] Error: Ugyldig input."
-            elif kommando == 'logout':
-                self.disconnect()
-            elif kommando in kommandoer:
-                self.send_payload(kommando,regex.search(inn_tekst).group(2))
-                #a = False
-            else:
-                print "[*] Error: Ugyldig input 2"
-
+            inn_tekst = str(raw_input("> "))
+            self.send_payload(inn_tekst)
+            time.sleep(0.1)
     # More methods may be needed!
 
 
@@ -81,3 +83,4 @@ if __name__ == '__main__':
     No alterations are necessary
     """
     client = Client('localhost', 9998)
+    client.handle_input()
