@@ -3,9 +3,8 @@ import socket, json, re, time
 from MessageReceiver import MessageReceiver
 from MessageParser import MessageParser
 
-#regex = re.compile(r'(.*) ?(.*)',re.M | re.I)
 
-#best fucking regex ever shitnubs
+#Best regex ever.
 regex = re.compile(r'(\w+)?(\s)?(.*)')
 
 class Client:
@@ -25,10 +24,8 @@ class Client:
         
         self.kommandoer = ['login','logout','msg','names','help']
 
-        #Hva gjorde dette igjen? Husker ikke hvorfor det er kommentert ut, men alt funker så... fuck it.
+        #What did this do again? Can't remember, but lets let it stay.
         #self.mottaker = MessageReceiver(self,self.connection)
-
-        # TODO: Finish init process with necessary code
         self.run()
 
     def run(self):
@@ -39,6 +36,7 @@ class Client:
         lytter.daemon = True
         lytter.start()
         print "[*] Lytter startet."
+        self.handle_input()
         
     def disconnect(self):
         self.connection.close()
@@ -51,7 +49,6 @@ class Client:
         print parser.parse(message)
 
     def send_payload(self, inputen):
-        # TODO: Handle sending of a payload
         payload = {}
         a = ""
         #REGEX POWAH
@@ -72,7 +69,7 @@ class Client:
             inn_tekst = str(raw_input("> "))
             self.send_payload(inn_tekst)
             time.sleep(0.1)
-    # More methods may be needed!
+    # More methods may not be needed!
 
 
 if __name__ == '__main__':
@@ -83,4 +80,3 @@ if __name__ == '__main__':
     No alterations are necessary
     """
     client = Client('localhost', 9998)
-    client.handle_input()

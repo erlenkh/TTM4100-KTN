@@ -12,6 +12,7 @@ class MessageReceiver(Thread):
         """
         This method is executed when creating a new MessageReceiver object
         """
+        #Basically, this is magic.
         super(MessageReceiver,self).__init__()
         self.connection = connection
         # Flag to run thread as a deamon

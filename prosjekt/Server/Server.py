@@ -6,11 +6,13 @@ from threading import Thread
 Variables and functions that must be used by all the ClientHandler objects
 must be written here (e.g. a dictionary for connected clients)
 """
+messages_history = []
 messages = []
 users = []
 class ClientHandler(SocketServer.BaseRequestHandler):
     global messages
     global users
+    global messages_history
     """
     This is the ClientHandler class. Everytime a new client connects to the
     server, a new ClientHandler object will be created. This class represents
@@ -21,6 +23,8 @@ class ClientHandler(SocketServer.BaseRequestHandler):
         """
         This method handles the connection between a client and the server.
         """
+
+        #Just some initialization to handle things easily.
         self.kommandoer = ['login','logout','msg','names','help','history']
         self.messageCount = 0
         self.loggedin = 0
@@ -29,10 +33,12 @@ class ClientHandler(SocketServer.BaseRequestHandler):
         self.port = self.client_address[1]
         self.connection = self.request
 
-        #this shit so guuuud
-        handleUpdates = Thread(target=self.update_clients)
-        handleUpdates.setDaemon = True
-        handleUpdates.start()
+        self.logginTime = ""
+
+        #Threading2016
+        self.handleUpdates = Thread(target=self.update_clients)
+        self.handleUpdates.setDaemon = True
+        self.handleUpdates.start()
 
         # Loop that listens for messages from the client
         while True:
@@ -43,7 +49,7 @@ class ClientHandler(SocketServer.BaseRequestHandler):
 
             request = recv['request']
             content = recv['content']
-            
+            #If your request is not here, go away.
             if request == 'login':
                 self.handle_login(content)
             elif request == 'logout':
@@ -63,12 +69,23 @@ class ClientHandler(SocketServer.BaseRequestHandler):
     def update_clients(self):
         while True:
             sleep(0.5) #delay så servern kan chilln litt.
-            if self.messageCount < len(messages) and self.messageCount>0: #=> time to update this bitch.
-                for i in range(self.messageCount,len(messages)):
-                    self.connection.sendall(messages[i])
-                    self.messageCount += 1
+            if self.messageCount < len(messages): #=> time to update this bitch.
+                if self.loggedin == 1:
+                    for i in range(self.messageCount,len(messages)):
+                        if self.logginTime < messages[i][1]:
+                            self.send_other_msg(messages[i][1])
+                            self.messageCount += 1
 
 
+
+    def send_other_msg(self,message):
+        try:
+            a = message.split(" ")
+            sender = a[0]  
+            payload = {'timestamp':asctime(),'sender':sender,'response':'message','content':message}
+            self.send(payload)
+        except:
+            pass
 
     #boring functions be down here.
     def handle_login(self,user):
@@ -82,8 +99,12 @@ class ClientHandler(SocketServer.BaseRequestHandler):
         if self.loggedin == 1:
             self.handle_error()
             return
+        if user in users:
+            self.handle_error()
+            return
 
         if user not in users:
+            self.logginTime = time()
             self.username = user
             users.append(user)
             self.loggedin = 1
@@ -107,9 +128,10 @@ class ClientHandler(SocketServer.BaseRequestHandler):
         elif self.loggedin == 0:
             self.handle_error()
         else:
-            messages.append(asctime()+":"+self.username+": "+message)
-            payload = {'timestamp':asctime(),'sender':'test','response':'message','content':message}
-            self.send(payload)
+            messages_history.append("["+str(asctime().split(" ")[1])+" "+str(asctime().split(" ")[2])+" "+str(asctime().split(" ")[3])+"]"+"<"+self.username+"> "+message)
+            messages.append((time(),"<"+self.username+"> "+message))
+            #payload = {'timestamp':asctime(),'sender':self.username,'response':'message','content':message}
+            #self.send(payload)
 
     def handle_names(self):
         if self.loggedin == 0:
@@ -128,21 +150,20 @@ class ClientHandler(SocketServer.BaseRequestHandler):
             return
         content = ""
         for i in range(len(messages)):
-            content += messages[i]+"\n"
+            content += messages_history[i]+"\n"
         payload = {'timestamp':asctime(),'sender':'server','response':'history','content':content}
         self.send(payload)
 
 
 
     def handle_error(self):
-        timestamp = asctime()
-        tsascii = asctime() #mulig at jeg bruker denne senere.
-        payload = {'timestamp':tsascii,'sender':'server','response':'error','content':'Invalid command.'}
+        #Could implement a variable so that the user gets more info about the error. 
+        payload = {'timestamp':asctime(),'sender':'server','response':'error','content':'Invalid command.'}
         self.send(payload)
 
 
     def handle_help(self):
-        content = "Help: Commands: Login, Logout, msg, names, history. Usage: command + content"
+        content = "Help: \n Commands: login, logout, msg, names, history. \n Usage: command + content"
         payload = {'timestamp':asctime(),'sender':'server','response':'info','content':content}
         self.send(payload)
 
